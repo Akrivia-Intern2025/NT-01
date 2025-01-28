@@ -137,7 +137,7 @@ export class InventoryComponent implements OnInit {
 
   productData: any;
   pageNo = 1;
-  limit = 10;
+  limit = 5;
   selectedItems: any[] = [];
   totalPage = 1;
   totalcount = 0;

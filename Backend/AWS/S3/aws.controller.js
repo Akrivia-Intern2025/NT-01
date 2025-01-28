@@ -96,7 +96,7 @@ const downloadZip = (req, res) => {
   if (!selectedFiles || selectedFiles.length === 0) {
     return res.status(400).json({ message: "No files selected" });
   }
-  const folderPrefix = "AKV0795/profile-photos/";
+  const folderPrefix = "AKV0775/profile-photos/";
   const archive = archiver("zip", {
     zlib: { level: 9 },
   });

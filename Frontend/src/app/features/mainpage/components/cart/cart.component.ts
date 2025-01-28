@@ -13,7 +13,7 @@ import { AuthserviceService } from 'src/app/features/auth/services/authservice.s
 export class CartComponent implements OnInit {
   cartData: any[] = [];
   currentPage = 1;
-  totalPages = 1;
+  totalPages = 5;
   totalCount = 0;
   alertMessage: string = '';
   showAlert: boolean = false;
@@ -41,7 +41,7 @@ export class CartComponent implements OnInit {
       });
 
       this.totalCount = data.length;
-      this.totalPages = Math.ceil(this.totalCount / 10);
+      this.totalPages = Math.ceil(this.totalCount / 4);
       console.log('Cart data:', this.cartData);
     });
   }

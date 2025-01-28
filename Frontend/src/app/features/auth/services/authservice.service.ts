@@ -20,8 +20,8 @@ export class AuthserviceService {
   ) {}
 
   signup(firstName: string, lastName: string, email: string, password: string): Observable<any> {
-    const encryptedEmail = CryptoJS.AES.encrypt(email, 'venkydeexu18').toString();
-    const encryptedPassword = CryptoJS.AES.encrypt(password, 'venkydeexu18').toString();
+    const encryptedEmail = CryptoJS.AES.encrypt(email, 'eeshwar369').toString();
+    const encryptedPassword = CryptoJS.AES.encrypt(password, 'eeshwar369').toString();
   
     const body = {
       first_name: firstName,
@@ -38,8 +38,8 @@ export class AuthserviceService {
 
   login(email: string, password: string): Observable<any> {
     const data = { email, password };
-    const encryptedEmail = CryptoJS.AES.encrypt(email, 'venkydeexu18').toString();
-    const encryptedPassword = CryptoJS.AES.encrypt(password, 'venkydeexu18').toString();
+    const encryptedEmail = CryptoJS.AES.encrypt(email, 'eeshwar369').toString();
+    const encryptedPassword = CryptoJS.AES.encrypt(password, 'eeshwar369').toString();
   
     const body = { 
       email: encryptedEmail,

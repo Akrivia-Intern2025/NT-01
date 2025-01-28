@@ -10,17 +10,17 @@ const {
   importData,
   getCartData,
   deleteCartData,
-  decreaseCartQuantityAndUpdateStock,
 } = require("./product.controller");
+const authenticateToken = require("../../middlewares/authenticateToken");
 const upload = multer({ dest: "uploads/" });
 
 dashboard.get("/vendor", vendor);
 dashboard.get("/categories", categories);
-dashboard.get("/cartData", getCartData);
+dashboard.get("/cartData", authenticateToken, getCartData);
 dashboard.delete("/deleteItem/:id", deleteCartData);
 dashboard.put("/product/updateimage", updateimage);
 dashboard.delete("/product/:productId", deleteProduct);
-dashboard.get("/filterProduct", getAllProducts);
+dashboard.get("/filterProduct", authenticateToken, getAllProducts);
 dashboard.post("/import-data", importData);
 
 module.exports = dashboard;

@@ -123,7 +123,7 @@ const getAllProducts = async (req, res, next) => {
       category_name,
       status,
       page = 1,
-      limit = 10,
+      limit = 5,
     } = req.query;
     const offset = (page - 1) * limit;
 
@@ -161,25 +161,25 @@ const getAllProducts = async (req, res, next) => {
     const products = await productsData;
 
     //pagination logic
-    const pagginationData = db("products as p")
+    const paginationData = db("products as p")
       .leftJoin("categories as c", "p.category_id", "c.category_id")
       .leftJoin("product_to_vendor as pv", "p.product_id", "pv.product_id")
       .leftJoin("vendors as v", "pv.vendor_id", "v.vendor_id");
 
     if (product_name) {
-      pagginationData.where("p.product_name", "like", `%${product_name}%`);
+      paginationData.where("p.product_name", "like", `%${product_name}%`);
     }
     if (category_name) {
-      pagginationData.where("c.category_name", "like", `%${category_name}%`);
+      paginationData.where("c.category_name", "like", `%${category_name}%`);
     }
     if (status) {
-      pagginationData.where("p.status", status);
+      paginationData.where("p.status", status);
     } else {
-      pagginationData.whereIn("p.status", ["0", "1", "2"]);
+      paginationData.whereIn("p.status", ["0", "1", "2"]);
     }
-
-    const result = await pagginationData.count("p.product_id as count");
-    const totalCount = result[0].count;
+    paginationData.groupBy("p.product_id");
+    const result = await paginationData.count("p.product_id as count").whereIn("p.status", ["0", "1"]);
+    const totalCount = result.length;
 
     const totalPage = Math.ceil(totalCount / limit);
 

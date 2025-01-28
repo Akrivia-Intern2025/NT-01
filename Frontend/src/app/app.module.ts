@@ -22,8 +22,8 @@ import { FilterPipe } from './filter.pipe';
     HttpClientModule,
     ToastrModule.forRoot({
       positionClass: 'toast-top-right',
-      timeOut: 3000,
-      extendedTimeOut: 1000,
+      timeOut: 1000,
+      extendedTimeOut: 500,
       closeButton: true,
       progressBar: true,
     }),

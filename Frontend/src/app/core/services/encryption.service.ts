@@ -5,11 +5,12 @@ import * as CryptoJS from 'crypto-js';
   providedIn: 'root'
 })
 export class EncryptionService {
-  private secretKey = 'venkydeexu18'; 
+  private secretKey = 'eeshwar369'; 
   constructor() {}
 
   encryptData(data: any): string {
     const encrypted = CryptoJS.AES.encrypt(JSON.stringify(data), this.secretKey).toString();
+    console.log(encrypted);
     return encrypted;
   }
 

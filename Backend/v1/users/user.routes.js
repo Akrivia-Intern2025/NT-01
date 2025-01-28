@@ -4,9 +4,9 @@ const authenticateToken = require('../../middlewares/authenticateToken');
 const router=express.Router();
 
 router.get('/userdata',authenticateToken,getUser);
-router.put('/update/:id', updateUser)
+router.put('/update/:id',authenticateToken, updateUser)
 
-router.delete('/delete/:id', deleteUser);
+router.delete('/delete/:id',authenticateToken, deleteUser);
 
 router.get('/getAll',authenticateToken, getAllUsers);
 

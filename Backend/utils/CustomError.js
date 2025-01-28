@@ -8,5 +8,5 @@ class CustomError extends Error{
     Error.captureStackTrace(this,this.consturctor);
   }
 }
-module.exports =CustomError;
+module.exports = CustomError;
 

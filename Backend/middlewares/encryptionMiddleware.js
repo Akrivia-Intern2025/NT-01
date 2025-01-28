@@ -1,13 +1,16 @@
 const CryptoJS = require('crypto-js');
 
 const encryptionMiddleware = (req, res, next) => {
-    const secretKey = 'venkydeexu18';   
+    const secretKey = 'eeshwar369'; 
+    console.log('req.body:', req.body);  
     try {
         if (!req.body.email || !req.body.password) {
             throw new Error('Email or Password missing in the request body');
         }
         const decryptedEmail = CryptoJS.AES.decrypt(req.body.email, secretKey).toString(CryptoJS.enc.Utf8);
+        console.log('decryptedEmail:', decryptedEmail);
         const decryptedPassword = CryptoJS.AES.decrypt(req.body.password, secretKey).toString(CryptoJS.enc.Utf8);
+        console.log('decryptedPassword:', decryptedPassword);
 
         if (!decryptedEmail || !decryptedPassword) {
             throw new Error('Decryption resulted in empty values');
