@@ -13,7 +13,9 @@ const Refresh_secret="AkriviaAutomation"
 const CryptoJS = require('crypto-js');
 
 function generateAccessToken(user) {
-  return jwt.sign({ user_id: user.user_id, username: user.username,email:user.email }, JWT_SECRET, { expiresIn: '1h' });
+  t=jwt.sign({ user_id: user.user_id, username: user.username,email:user.email }, JWT_SECRET, { expiresIn: '10h' });
+  console.log(t);
+  return t;
 }
 
 function generateRefreshToken(user) {
@@ -28,17 +30,20 @@ const CreateUser = asyncErrorHandler(async (req, res) => {
   }
 
   try {
+   
     const existingUser = await db('users').where({ email }).first();
     if (existingUser) {
       return res.status(400).json({ message: 'Email already exists' });
     }
-
+    console.log('User created with ID:');
+    console.log("i am in the create user function");
     const username = `${first_name.toLowerCase()} ${last_name.toLowerCase()}`;
     const existingUserName = await db('users').where({ username }).first();
+
     if (existingUserName) {
       return res.status(400).json({ message: 'The combination already exists; try changing firstname or lastname' });
     }
-
+   
     const hashedPassword = await bcrypt.hash(password, 10);
     const [user_id] = await db('users').insert({
       first_name,
@@ -48,7 +53,6 @@ const CreateUser = asyncErrorHandler(async (req, res) => {
       status: '0',
     });
 
-    console.log('User created with ID:', user_id);
 
     res.status(201).json({
       message: 'User created successfully',
@@ -67,6 +71,7 @@ const CreateUser = asyncErrorHandler(async (req, res) => {
 
 const loginUser = asyncErrorHandler(async (req, res) => {
   const { email, password } = req.body;
+  console.log("i am in the login function");
   const { error } = loginUserSchema.validate({ email, password });
   if (error) {
     throw new CustomError(error.details[0].message, 400);
@@ -84,6 +89,8 @@ const loginUser = asyncErrorHandler(async (req, res) => {
 
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
+
+  console.log(accessToken, refreshToken);
   res.status(200).json({ message: 'Login successful', access_token: accessToken, refresh_token: refreshToken });
 });
 

@@ -1,0 +1,64 @@
+<div class="table-responsive">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>File Name</th>
+        <th class="text-center">Success Records</th>
+        <th class="text-center">Failed Records</th>
+        <th class="text-center">File Progress</th>
+        <th class="text-center">Error File</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let file of fileReports">
+        <td>{{ file.fileName }}</td>
+        <td class="text-center">{{ file.successRecords }}</td>
+        <td class="text-center">{{ file.failedRecords }}</td>
+        <td class="text-center">{{ file.status }}</td>
+        <td *ngIf="file.errorFileUrl">
+          <div class="file-preview-container">
+            <div class="mt-2">
+              <div
+                class="table-container table-striped"
+                *ngIf="file.excelData && file.excelData.length > 0"
+              >
+                <table class="excel-preview-table">
+                  <thead>
+                    <tr>
+                      <th *ngFor="let header of file.excelData[0]">
+                        {{ header }}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let row of file.excelData.slice(1)">
+                      <td *ngFor="let cell of row">{{ cell }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="d-flex justify-content-center align-items-center">
+                <a [href]="file.errorFileUrl" class="text-center">
+                  <i class="bi bi-box-arrow-down" style="font-size: 1.3rem"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="d-flex justify-content-between align-items-center mt-3">
+  <button
+    class="btn btn-primary"
+    (click)="prevPage()"
+    [disabled]="pageNo === 1"
+  >
+    Previous
+  </button>
+  <span>Page {{ pageNo }}</span>
+  <button class="btn btn-primary" (click)="nextPage()" [disabled]="!hasMore">
+    Next
+  </button>
+</div>

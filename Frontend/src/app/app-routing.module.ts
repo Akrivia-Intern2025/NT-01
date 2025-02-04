@@ -17,6 +17,7 @@ const routes: Routes = [
     loadChildren: () => import('./features/mainpage/mainpage.module').then(m => m.MainpageModule),
     canActivate: [AuthGuard]},
   
+  
 ];
 
 @NgModule({

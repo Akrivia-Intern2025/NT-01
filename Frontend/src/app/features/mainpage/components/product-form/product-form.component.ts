@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { environment } from 'src/environments/environment';
@@ -47,16 +47,25 @@ export class ProductFormComponent implements OnInit {
   vendors: any;
   categories: any;
   ngOnInit(): void {
-    this.http.get(`${environment.Url}/dashboard/vendor`).subscribe((data) => {
-      this.vendors = data;
-      console.log(data);
-      console.log(this.item);
-    });
+    this.http
+      .get(`${environment.Url}/dashboard/vendor`)
+      .subscribe((data: any) => {
+        this.vendors = data;
+        console.log('Vendors:', this.vendors);
+
+        if (this.item) {
+          this.populateFormForEdit();
+        }
+      });
+
     this.http
       .get(`${environment.Url}/dashboard/categories`)
-      .subscribe((data) => {
+      .subscribe((data: any) => {
         this.categories = data;
-        console.log(data);
+        console.log('Categories:', this.categories);
+        if (this.item && this.vendors) {
+          this.populateFormForEdit();
+        }
       });
   }
 
@@ -75,6 +84,7 @@ export class ProductFormComponent implements OnInit {
   isSelected(vendorId: number): boolean {
     return this.selectedVendors.includes(vendorId);
   }
+
   onSubmit() {
     if (this.productForm.valid) {
       const productData = {
@@ -96,9 +106,10 @@ export class ProductFormComponent implements OnInit {
       this.aws.getPresignedUrl(fileName, fileType, '3').subscribe({
         next: (response: any) => {
           const { presignedUrl, fileName, userId } = response;
-          console.log('res img', response.imageUrl);
-
-          this.uploadToS3(presignedUrl, fileName, userId, response.imageUrl);
+          this.uploadedImageUrl = response.imageUrl;
+          try {
+            this.uploadToS3(presignedUrl, fileName, userId, response.imageUrl);
+          } catch (error) {}
         },
         error: (error: any) => {
           console.error('Error getting presigned URL:', error);
@@ -114,17 +125,20 @@ export class ProductFormComponent implements OnInit {
     image: string
   ): void {
     if (this.selectedFile) {
+      console.log(this.item.product_id, this.item);
       this.aws.uploadFileToS3(presignedUrl, this.selectedFile).subscribe({
         next: () => {
-          this.toastr.success('Photo successfully uploaded to S3', 'Success');
-          this.uploadedImageUrl = image;
           this.http
-            .put(`${environment.Url}/dashboard/product/updateimage`, {
+            .put(`${environment.Url}/dashboard/product/updateImage`, {
               id: this.item?.product_id,
               image: image,
             })
             .subscribe({
               next: (data) => {
+                this.toastr.success(
+                  'Picture successfully uploaded to S3',
+                  'Success'
+                );
                 console.log('Image update response:', data);
               },
               error: (error) => {
@@ -140,42 +154,54 @@ export class ProductFormComponent implements OnInit {
   }
 
   populateFormForEdit() {
+    if (!this.vendors || !this.categories) {
+      console.warn('Vendors or categories data is not yet loaded.');
+      return;
+    }
+    console.log(this.vendors, this.item);
     this.productForm.patchValue({
       productName: this.item.product_name,
       quantity: this.item.quantity_in_stock,
       unit: this.item.unit_price,
-      status: this.item.status, // Patch the category if available
+      status: this.item.status,
     });
-    
+
     if (this.item.category_name) {
       const category = this.categories?.data?.find(
         (c: any) => c.category_name === this.item.category_name
       );
       if (category) {
-        this.productForm.get('category')?.setValue(category.category_id); // Use category ID if required
+        this.productForm.get('category')?.setValue(category.category_id);
       }
     }
-    
-    // Populate selected vendors if any
+
     if (this.item.vendor_name) {
-      const vendor = this.vendors?.data?.find(
-        (v: any) => v.vendor_name === this.item.vendor_name
+      const vendorNames = this.item.vendor_name
+        .split(',')
+        .map((name: string) => name.trim());
+      const selectedVendors = this.vendors?.data?.filter((v: any) =>
+        vendorNames.includes(v.vendor_name)
       );
-      if (vendor) {
-        this.selectedVendors = [vendor.vendor_id]; // Update selected vendors array
+
+      if (selectedVendors && selectedVendors.length > 0) {
+        const vendorIds = selectedVendors.map(
+          (vendor: any) => vendor.vendor_id
+        );
+        console.log(vendorIds, selectedVendors);
+        this.selectedVendors = vendorIds;
         this.productForm.get('vendor')?.setValue(this.selectedVendors);
       }
     }
-  
-    // Handle product image
+
     if (this.item.product_image) {
-      const imagePreviewElement = document.getElementById('imagePreview') as HTMLImageElement;
+      const imagePreviewElement = document.getElementById(
+        'imagePreview'
+      ) as HTMLImageElement;
       if (imagePreviewElement) {
-        imagePreviewElement.src = this.item.product_image; // Update image preview
+        imagePreviewElement.src = this.item.product_image;
       }
     }
   }
-  
 
   onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;

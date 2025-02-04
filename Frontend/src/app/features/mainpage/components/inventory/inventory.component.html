@@ -5,37 +5,30 @@
         <h5 class="mb-0">Inventory Movements</h5>
         <small class="text-muted">{{ totalcount }} Products</small>
       </div>
-      <div *ngIf="!showCart">
+      <div *ngIf="!showCart && !showUploads">
         <button
-          class="btn btn-light border border-secondary me-2"
+          class="teal-button btn border me-2"
           (click)="move()"
           data-bs-toggle="modal"
           data-bs-target="#moveToCartModal"
         >
+          <i class="bi bi-cart-check"></i>
           Move to cart
         </button>
-        <button
-          class="btn btn-light me-2 border border-secondary"
-          (click)="download()"
-        >
+        <button class="teal-button btn border me-2" (click)="download()">
+          <i class="bi bi-cloud-download"></i>
           Download All
         </button>
         <button
-          class="btn btn-light me-2 border border-secondary"
-          (click)="triggerFileInput()"
+          class="teal-button btn border me-2"
+          data-bs-toggle="modal"
+          data-bs-target="#importModal"
         >
-          <i class="bi bi-upload"></i> Import
+          <i class="bi bi-file-earmark-arrow-up"></i> Import
         </button>
-        <input
-          type="file"
-          #fileInput
-          (change)="handleFileInput($event)"
-          accept=".xls,.xlsx"
-          style="display: none"
-        />
 
         <button
-          class="btn btn-primary violet-button"
+          class="btn purple-button border me-2"
           data-bs-toggle="modal"
           data-bs-target="#addProductModal"
         >
@@ -47,18 +40,28 @@
       <div class="d-flex justify-content-between align-items-center">
         <div class="btn-group">
           <button
-            class="btn btn-light active border border-secondary"
+            class="btn grey-button active border border-secondary"
             (click)="onView()"
             [class.active]="!showCart"
           >
+            <i class="bi bi-view-list"></i>
             View all
           </button>
           <button
-            class="btn btn-light border border-secondary"
+            class="btn grey-button active border border-secondary"
             (click)="onCart()"
             [class.active]="showCart"
           >
+            <i class="bi bi-cart"></i>
             Cart
+          </button>
+          <button
+            class="btn grey-button active border border-secondary"
+            (click)="onImport()"
+            [class.active]="showUploads"
+          >
+            <i class="bi bi-file-earmark-spreadsheet"></i>
+            My Uploads
           </button>
         </div>
         <div class="d-flex gap-2">
@@ -68,62 +71,74 @@
               class="form-control"
               placeholder="Search"
               style="padding-left: 35px; width: 250px"
-              [(ngModel)]="searchTerm"
-              (input)="filterSearch($event)"
+              [(ngModel)]="searchText"
+              (ngModelChange)="handleModelChanges()"
             />
             <i
               class="bi bi-search position-absolute"
               style="left: 12px; top: 50%; transform: translateY(-50%)"
             ></i>
           </div>
+
           <button
             class="btn btn-light d-flex align-items-center gap-2"
             data-bs-toggle="dropdown"
             aria-expanded="false"
+            (click)="toggleDropdown()"
           >
             <i class="bi bi-funnel"></i> Filters
           </button>
-          <div class="dropdown">
-            <div class="dropdown-menu p-3" style="min-width: 250px">
+
+          <div class="dropdown" *ngIf="isDropdownOpen">
+            <div class="dropdown-menu p-3">
               <h6 class="dropdown-header px-0 text-dark fw-bold">Columns</h6>
-              <select
-                class="form-select"
-                aria-label="Select column to filter"
-                id="filterColumn"
-                [(ngModel)]="this.filterData.category_name"
-                (change)="searchCategory()"
-              >
-                <option value="Electronics" selected>Electronics</option>
-                <option value="Furniture">Furniture</option>
-                <option value="Clothing">Clothing</option>
-                <option value="Food & Beverages">Food & Beverages</option>
-                <option value="Health & Beauty">Health & Beauty</option>
-                <option value="Sports & Outdoors">Sports & Outdoors</option>
-                <option value="Toys & Games">Toys & Games</option>
-                <option value="Office Supplies">Office Supplies</option>
-                <option value="Books & Stationery">Books & Stationery</option>
-              </select>
-              <button class="btn btn-secondary mt-2" (click)="resetFilter()">
-                Reset Filter
-              </button>
+              <ul class="list-unstyled">
+                <li>
+                  <label class="d-flex align-items-center">
+                    <input
+                      type="checkbox"
+                      (change)="onCheckboxChange('category_name', $event)"
+                    />
+                    <span class="ms-2">Category</span>
+                  </label>
+                </li>
+                <li>
+                  <label class="d-flex align-items-center">
+                    <input
+                      type="checkbox"
+                      (change)="onCheckboxChange('vendor_name', $event)"
+                    />
+                    <span class="ms-2">Vendors</span>
+                  </label>
+                </li>
+                <li>
+                  <label class="d-flex align-items-center">
+                    <input
+                      type="checkbox"
+                      (change)="onCheckboxChange('product_name', $event)"
+                    />
+                    <span class="ms-2">Product Name</span>
+                  </label>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <div class="card-body" *ngIf="!showCart">
-    <div class="table-responsive">
-      <table class="table">
+  <div class="card-body" *ngIf="!showCart && !showUploads">
+    <div>
+      <table class="table table-responsive table-hover">
         <thead>
           <tr>
             <th>#</th>
             <th>Product Name</th>
-            <th>Status <i class="bi bi-chevron-down ms-1"></i></th>
+            <th>Status</th>
             <th>Category <i class="bi bi-info-circle ms-1"></i></th>
             <th>Vendors</th>
             <th>Quantity</th>
-            <th>Unit</th>
+            <th>Unit Price</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -223,9 +238,13 @@
   </div>
 </div>
 
+<div class="card-body" *ngIf="showUploads">
+  <app-import-file></app-import-file>
+</div>
+
 <div class="card-body" *ngIf="showCart">
-  <div class="table-responsive">
-    <table class="table">
+  <div>
+    <table class="table table-responsive table-hover">
       <thead>
         <tr>
           <th>Product Name</th>
@@ -244,6 +263,7 @@
               class="btn btn-danger btn-sm"
               (click)="removeFromCart(item)"
             >
+              <span class="text-light">Remove</span>&nbsp;
               <i class="bi bi-trash3"></i>
             </button>
           </td>
@@ -260,7 +280,7 @@
   aria-labelledby="moveToCartModalLabel"
   aria-hidden="true"
 >
-  <div class="modal-dialog modal-dialog-centered modal-lg">
+  <div class="modal-dialog modal-dialog-centeteal modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="moveToCartModalLabel">Move to Cart</h5>
@@ -285,7 +305,7 @@
   aria-labelledby="addProductModalLabel"
   aria-hidden="true"
 >
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centeteal">
     <div class="modal-content">
       <div class="modal-header">
         <h5
@@ -318,7 +338,7 @@
   aria-labelledby="addProductModalLabel"
   aria-hidden="true"
 >
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centeteal">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="editProductModalLabel">Edit Product</h5>
@@ -338,6 +358,108 @@
 
 <div
   class="modal fade"
+  id="importModal"
+  tabindex="-1"
+  aria-labelledby="uploadModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <div>
+          <h5 class="modal-title fw-semibold mb-1" id="uploadModalLabel">
+            Upload and Attach Files
+          </h5>
+          <p class="text-muted mb-0 small">Please upload your file</p>
+        </div>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <div class="modal-body text-center py-4">
+        <!-- File Upload Box -->
+        <label
+          class="upload-area border rounded-3 p-4 mb-3 d-block cursor-pointer"
+          *ngIf="!selectedFile"
+        >
+          <input
+            type="file"
+            class="d-none"
+            (change)="handleFileInput($event)"
+            accept=".xls,.xlsx"
+            #fileInput
+          />
+          <i class="bi bi-upload fs-1 text-secondary mb-2"></i>
+          <p class="mb-1">Click to upload or drag and drop</p>
+          <p class="text-secondary small mb-0">Only Excel files are allowed</p>
+        </label>
+
+        <!-- Show Selected File -->
+        <div *ngIf="selectedFile">
+          <p><strong>File Name:</strong> {{ selectedFile.name }}</p>
+          <p>
+            <strong>File Size:</strong> {{ selectedFile.size | number }} bytes
+          </p>
+
+          <!-- Upload Progress Indicator -->
+          <div *ngIf="uploadInProgress">
+            <div class="progress">
+              <div
+                class="progress-bar"
+                role="progressbar"
+                [style.width.%]="progressValue"
+                [attr.aria-valuenow]="progressValue"
+                aria-valuemin="0"
+                aria-valuemax="100"
+              >
+                {{ progressValue }}%
+              </div>
+            </div>
+            <p>Uploading file...</p>
+          </div>
+
+          <!-- Success Message -->
+          <div
+            *ngIf="!uploadInProgress && progressValue === 100"
+            class="text-success"
+            data-bs-dismiss="modal"
+          >
+            <i class="bi bi-check-circle-fill"></i> File uploaded successfully!
+          </div>
+
+          <!-- Upload & Cancel Buttons -->
+          <div
+            class="d-flex justify-content-end gap-2"
+            *ngIf="!uploadInProgress"
+          >
+            <button
+              type="button"
+              class="btn btn-light"
+              (click)="resetFileSelection()"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-danger px-4"
+              (click)="uploadFile()"
+              [disabled]="!selectedFile"
+            >
+              Import File
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
   id="deleteModal"
   tabindex="-1"
   [ngClass]="{ show: showModal }"
@@ -345,7 +467,7 @@
   aria-labelledby="deleteModalLabel"
   aria-hidden="true"
 >
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centeteal">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="deleteModalLabel">Delete Product</h5>

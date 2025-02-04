@@ -1,9 +1,9 @@
 <div class="card">
   <div class="card-header bg-white">
-    <h5 class="mb-2">Files uploaded</h5>
+    <h5 class="mb-2">File Uploads</h5>
     <div class="d-flex gap-2">
       <button
-        class="btn btn-light border-secondary"
+        class="on-hover btn btn-info border-secondary"
         (click)="downloadAllSelected()"
       >
         Download all
@@ -76,6 +76,23 @@
         >Download XLSX File</a
       >
     </div>
+    <!-- <div *ngIf="filePreviewUrl && fileType === 'word'" class="mt-2">
+      <a [href]="filePreviewUrl"  style="width:100%; height:500px;">Download DOCX File</a>
+    </div> -->
+    <div *ngIf="filePreviewUrl && fileType === 'word'" class="mt-2">
+      <iframe
+        [src]="filePreviewUrl"
+        style="width: 500px; height:500px;"
+        frameborder="0"
+      ></iframe>
+    </div>
+    <!-- <div *ngIf="filePreviewUrl && fileType === 'word'" class="mt-2">
+      <ngx-doc-viewer
+        [url]="filePreviewUrl"
+        viewer="mammoth"
+        style="width:100%; height:500px;"
+      ></ngx-doc-viewer>
+    </div> -->
 
     <div *ngIf="filePreviewUrl && fileType === 'pdf'" class="mt-2">
       <object
