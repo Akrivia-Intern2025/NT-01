@@ -29,9 +29,9 @@ const options = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "AKV0763 API",
+      title: "AKV0795 API",
       version: "1.0.0",
-      description: "AKV0763 API Documentation",
+      description: "AKV0795 API Documentation",
     },
     servers: [
       {
