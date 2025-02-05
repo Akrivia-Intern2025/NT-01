@@ -1,4 +1,3 @@
-// import.queries.js
 const knex = require("knex");
 const knexConfig = require("../../knexfile");
 const db = knex(knexConfig);
@@ -71,11 +70,11 @@ const getVendorByName = async (name) => {
 
 const insertProduct = async (productData, trx = db) => {
   const insertedIds = await trx("products").insert(productData);
+  console.log("import queries -  74", insertedIds[0]);
   return insertedIds[0];
 };
 
 const insertProductToVendor = async (productId, vendorId, trx = db) => {
-  // console.log("999999999999999999999999999999999999", productId, vendorId);
   return await trx("product_to_vendors").insert({
     vendor_id: vendorId,
     product_id: productId,
@@ -97,6 +96,7 @@ const insertProductWithVendors = async (record, trx = db) => {
         : "1",
   };
   const productId = await insertProduct(productData, trx);
+  // console.log("import queries - 99", productId);
   for (const vendorName of record.vendors) {
     const vendor = await getVendorByName(vendorName);
     if (!vendor) throw new Error("Invalid vendor");
@@ -107,8 +107,6 @@ const insertProductWithVendors = async (record, trx = db) => {
 
 const getAllVendorNames = async () => {
   const vendors = await db("vendors").select("vendor_name");
-   console.log("mg",vendors);
-
   return vendors.map((v) => v.vendor_name);
 };
 

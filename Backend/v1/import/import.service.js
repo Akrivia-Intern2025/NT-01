@@ -1,4 +1,3 @@
-// import.service.js
 const {
   insertFileData,
   updateFileSummary,
@@ -15,6 +14,7 @@ const { Worker } = require("worker_threads");
 const path = require("path");
 const os = require("os");
 const _ = require("underscore");
+
 const insertFileDetails = async (userId, fileName) => {
   let existingFile = await getFileDetailsByFileName(userId, fileName);
   let counter = 1;
@@ -61,9 +61,8 @@ const parseExcelData = async (fileUrl) => {
   const chunks = _.chunk(allRows, 500);
 
   const validVendorNames = await getAllVendorNames();
-  // console.log("999999999999999999999999",validVendorNames);
   const validCategoryNames = await getAllCategoryNames();
-  // console.log("7777777777777777777777",validCategoryNames);
+
   const maxWorkers = os.cpus().length;
   let totalValidCount = 0;
   let allInvalidRecords = [];

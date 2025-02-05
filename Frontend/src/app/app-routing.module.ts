@@ -14,8 +14,7 @@ const routes: Routes = [
    },
    
   { path: 'dashboard', 
-    loadChildren: () => import('./features/mainpage/mainpage.module').then(m => m.MainpageModule),
-    canActivate: [AuthGuard]},
+    loadChildren: () => import('./features/mainpage/mainpage.module').then(m => m.MainpageModule),},
   
   
 ];

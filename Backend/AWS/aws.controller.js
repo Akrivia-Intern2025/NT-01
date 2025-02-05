@@ -86,7 +86,7 @@ const profileUpdate = async (req, res) => {
   const fileUrl = `${process.env.PROFILE_PICTURE_URL}${fileName}`;
   try {
     await db("users").where("user_id", userId).update({ profile_pic: fileUrl });
-    console.log("[profileUpdate] Profile updated for user:", userId);
+    console.log("[profileUpdate] Profile updated for user:", userId, fileUrl);
     res.json({ message: "Profile picture updated successfully", fileUrl });
   } catch (err) {
     console.error("[profileUpdate] Error updating profile picture:", err);
@@ -95,8 +95,8 @@ const profileUpdate = async (req, res) => {
 };
 
 const getFiles = async (req, res) => {
-  const id = parseInt(req.params.id);
-  let folderName = (id === -1) ? "fileuploads" : `imported-files/${id}`;
+  const id = req.params.id;
+  let folderName = id == -1 ? "fileuploads" : `imported-files/${id}`;
   const params = {
     Bucket: process.env.AWS_BUCKET_NAME,
     Prefix: `AKV0795/${folderName}`,
@@ -118,41 +118,6 @@ const getFiles = async (req, res) => {
     res.json(files);
   });
 };
-// correct this function oonce it's completed.
-// const getFiles = async (req, res) => {
-//   const id = parseInt(req.params.id);
-//   let folderName = (id === -1) ? "fileuploads" : `imported-files/${id}`;
-
-//   const params = {
-//     Bucket: process.env.AWS_BUCKET_NAME,
-//     Prefix: `AKV0795/${folderName}`,
-//   };
-
-//   try {
-//     const data = await s3.listObjectsV2(params).promise();
-
-//     if (!data.Contents || data.Contents.length === 0) {
-//       return res.json({ message: "No files found", files: [] });
-//     }
-
-//     const files = data.Contents.map((file) => {
-//       const fileName = file.Key.replace(`AKV0795/${folderName}/`, "");
-//       return {
-//         fileName,
-//         fileSize: file.Size,
-//         fileType: fileName.includes(".") ? fileName.split(".").pop() : "unknown",
-//       };
-//     });
-
-//     console.log("[getFiles] Files retrieved successfully.");
-//     res.json({ files });
-
-//   } catch (err) {
-//     console.error("[getFiles] Error fetching files from S3:", err);
-//     res.status(500).json({ message: "Error fetching files from S3" });
-//   }
-// };
-
 
 const downloadZip = (req, res) => {
   const { selectedFiles } = req.body;

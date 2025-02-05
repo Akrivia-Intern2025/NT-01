@@ -7,9 +7,10 @@ import { SignupComponent } from './components/signup/signup.component';
 import { LoginComponent } from './components/login/login.component';
 import { AuthInterceptor } from './interceptors/http-interceptor.interceptor';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
-
+import { ResetComponent } from './components/reset/reset.component';
+import { ForgotComponent } from './components/forgot/forgot.component';
 @NgModule({
-  declarations: [SignupComponent, LoginComponent],
+  declarations: [SignupComponent, LoginComponent, ResetComponent, ForgotComponent],
   imports: [CommonModule, ReactiveFormsModule, AuthRoutingModule],
   providers: [
     {

@@ -27,9 +27,7 @@ export class ProductFormComponent implements OnInit {
     private aws: AwsService
   ) {
     this.main.dataSource.subscribe((data) => {
-      console.log('subject', data);
       this.item = data;
-      console.log('item', this.item);
       if (this.item) {
         this.populateFormForEdit();
       }
@@ -48,21 +46,18 @@ export class ProductFormComponent implements OnInit {
   categories: any;
   ngOnInit(): void {
     this.http
-      .get(`${environment.Url}/dashboard/vendor`)
+      .get(`${environment.Url}/api/v1/dashboard/vendor`)
       .subscribe((data: any) => {
         this.vendors = data;
-        console.log('Vendors:', this.vendors);
-
         if (this.item) {
           this.populateFormForEdit();
         }
       });
 
     this.http
-      .get(`${environment.Url}/dashboard/categories`)
+      .get(`${environment.Url}/api/v1/dashboard/categories`)
       .subscribe((data: any) => {
         this.categories = data;
-        console.log('Categories:', this.categories);
         if (this.item && this.vendors) {
           this.populateFormForEdit();
         }
@@ -125,11 +120,10 @@ export class ProductFormComponent implements OnInit {
     image: string
   ): void {
     if (this.selectedFile) {
-      console.log(this.item.product_id, this.item);
       this.aws.uploadFileToS3(presignedUrl, this.selectedFile).subscribe({
         next: () => {
           this.http
-            .put(`${environment.Url}/dashboard/product/updateImage`, {
+            .put(`${environment.Url}/api/v1/dashboard/product/updateImage`, {
               id: this.item?.product_id,
               image: image,
             })
@@ -139,7 +133,6 @@ export class ProductFormComponent implements OnInit {
                   'Picture successfully uploaded to S3',
                   'Success'
                 );
-                console.log('Image update response:', data);
               },
               error: (error) => {
                 console.error('Error updating image:', error);
@@ -158,7 +151,6 @@ export class ProductFormComponent implements OnInit {
       console.warn('Vendors or categories data is not yet loaded.');
       return;
     }
-    console.log(this.vendors, this.item);
     this.productForm.patchValue({
       productName: this.item.product_name,
       quantity: this.item.quantity_in_stock,
@@ -187,7 +179,6 @@ export class ProductFormComponent implements OnInit {
         const vendorIds = selectedVendors.map(
           (vendor: any) => vendor.vendor_id
         );
-        console.log(vendorIds, selectedVendors);
         this.selectedVendors = vendorIds;
         this.productForm.get('vendor')?.setValue(this.selectedVendors);
       }
@@ -207,7 +198,6 @@ export class ProductFormComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       this.selectedFile = input.files[0];
-      console.log('Image selected:', this.selectedFile);
     }
   }
 }
