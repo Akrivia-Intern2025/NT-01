@@ -32,4 +32,6 @@ const setupSwagger = (app) => {
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 };
 
+console.log(path.join(__dirname, "../v1/auth/*.js"));
+
 module.exports = setupSwagger;

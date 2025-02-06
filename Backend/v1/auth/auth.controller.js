@@ -49,15 +49,16 @@ const createUser = asyncErrorHandler(async (req, res) => {
   if (existingUser) {
     return res.status(400).json({ message: "Email already exists" });
   }
-
-  const username = `${first_name.toLowerCase()}_${last_name.toLowerCase()}`;
-  const existingUserName = await db("users").where({ username }).first();
-  if (existingUserName) {
-    return res.status(400).json({
-      message:
-        "The username combination already exists; try modifying your first name or last name",
-    });
-  }
+  // 
+  // const username = `${first_name.toLowerCase()}_${last_name.toLowerCase()}`;
+  // const existingUserName = await db("users").where({ username }).first();
+  // if (existingUserName) {
+  //   return res.status(400).json({
+  //     message:
+  //       "The username combination already exists; try modifying your first name or last name",
+  //   });
+  // }
+  const username = await generateUniqueUsername(first_name, last_name);
 
   const hashedPassword = await bcrypt.hash(password, 10);
   const [user_id] = await db("users").insert({
@@ -76,6 +77,22 @@ const createUser = asyncErrorHandler(async (req, res) => {
     email,
   });
 });
+
+const generateUniqueUsername = async (first_name, last_name) => {
+  let username = `${first_name.toLowerCase()}_${last_name.toLowerCase()}`;
+  let existingUserName = await db("users").where({ username }).first();
+  
+  // If username exists, append a number to it
+  let counter = 1;
+  while (existingUserName) {
+    username = `${first_name.toLowerCase()}_${last_name.toLowerCase()}${counter}`;
+    existingUserName = await db("users").where({ username }).first();
+    counter++;
+  }
+
+  return username;
+};
+
 
 const loginUser = asyncErrorHandler(async (req, res) => {
   const { email, password } = req.body;
@@ -152,6 +169,7 @@ const forgotEmail = async (req, res, next) => {
       expiresIn: "15m",
     });
     console.log(`${process.env.URL}`);
+    
     const resetLink = `${process.env.URL}/auth/reset?token=${token}`;
     console.log("hello");
     await transporter.sendMail({
