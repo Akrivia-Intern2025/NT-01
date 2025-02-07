@@ -23,6 +23,7 @@ export class FileUploadComponent implements OnInit {
   fileType: string | undefined;
   excelPreview: string | undefined;
   excelData: any[] = [];
+  permissions: any[] = [];
 
   constructor(
     private main: MainpageService,
@@ -50,8 +51,6 @@ export class FileUploadComponent implements OnInit {
         return 'video';
       case 'docx':
         return 'word';
-      case 'doc':
-        return 'word';
       case 'xlsx':
         return 'xlsx';
       case 'csv':
@@ -75,7 +74,6 @@ export class FileUploadComponent implements OnInit {
         console.error('Error in fetching files from AWS', error);
       },
     });
-    console.log(this.files);
   }
 
   getFileIcon(fileType: string): string {
@@ -142,14 +140,13 @@ export class FileUploadComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       this.selectedFile = input.files[0];
-      console.log(this.selectedFile);
+      // console.log(this.selectedFile);
     }
   }
 
   previewFile(file: File) {
     const reader = new FileReader();
     reader.onload = () => {
-      console.log(this.filePreviewUrl);
       this.filePreviewUrl = reader.result;
     };
     reader.readAsDataURL(file);
@@ -160,43 +157,22 @@ export class FileUploadComponent implements OnInit {
     url: string;
     fileType: string;
   }) {
-    console.log('File clicked:', file);
-
     if (file.fileType.startsWith('image')) {
       this.filePreviewUrl = this.sanitizer.bypassSecurityTrustUrl(file.url);
       this.fileType = 'image';
-      console.log('Image file URL:', this.filePreviewUrl);
-    }
-    // } else if (file.fileType === 'word') {
-    //   this.filePreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-    //     file.url
-    //   );
-    //   this.fileType = 'word';
-    //   console.log('Word file URL:', this.filePreviewUrl);
-    // }
-    else if (file.fileType === 'word') {
-      const encodedUrl = encodeURIComponent(file.url);
-      const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`;
-      this.filePreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(viewerUrl);
-      this.fileType = 'word';
-      console.log('Word preview URL:', viewerUrl);
-    }
-    else if (file.fileType === 'pdf') {
+    } else if (file.fileType === 'pdf') {
       this.filePreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
         file.url
       );
       this.fileType = 'pdf';
-      console.log('PDF file URL:', this.filePreviewUrl);
     } else if (file.fileType === 'xlsx') {
       this.filePreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
         file.url
       );
       this.fileType = 'xlsx';
-      console.log('Excel file URL:', this.filePreviewUrl);
       this.fetchExcelFile(file.url);
     } else {
       this.filePreviewUrl = null;
-      console.log('Cannot preview this file type');
     }
   }
 
@@ -257,5 +233,11 @@ export class FileUploadComponent implements OnInit {
         },
       });
     }
+  }
+
+  hasPermission(permission: string): boolean {
+    this.permissions = this.main.permissions;
+    // console.log(this.permissions);
+    return this.permissions.includes(permission);
   }
 }
